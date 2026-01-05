@@ -1,0 +1,41 @@
+VS Code + WSL (Linux)
+
+~How to install WSL?
+In PowerShell (Run as Administrator):
+wsl --status
+
+If it's not installed:
+wsl --install
+Then you need to restart your computer. (and check wsl --status just in case)
+
+~In VS Code:
+1. Extensions -> install "WSL" (by Microsoft)
+2. Ctrl + Shift + P
+3. type: WSL: Open Folder in WSL
+4. Open folder project
+(in left corner it should write WSL: Ubuntu, it's the sign that project is opened in Ubuntu)
+
+**maybe on the 3. step it will say that it cannot open in ubuntu,
+because it is not there, then a small window will appear in the lower right corner, 
+and click on the button that offers. It will switch to the above input and you need to type ubuntu and click on it.
+(plain Ubuntu) Then it will install Ubuntu to your VS Code.
+After this, go back to step 2!
+
+~How to start the server?
+Type in the terminal
+1. Move to the folder 'server' -> cd server
+2. g++ server.cpp server_socket.cpp -o server
+3. ./server
+
+If you see:
+[SERVER] Listening on port 8080
+Then server is working correctly.
+
+**maybe you'll have a problem again at the second step when it complains that there's no g++.
+Then it offers you to type: sudo apt install g++
+If Ubuntu installed an older version, at the end you will see errors that it did not manage to install g++ all the way.
+Then you need to perform the following steps:
+1. sudo apt update
+2. sudo apt upgrade -y  (if step 1 has no errors)
+3. sudo apt install g++ -y  (if step 2 has no errors)
+4. Go back to step 2 (How to start the server? step 2: g++ server.cpp server_socket.cpp -o server)
