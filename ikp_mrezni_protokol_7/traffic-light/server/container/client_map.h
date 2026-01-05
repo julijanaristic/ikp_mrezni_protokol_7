@@ -1,7 +1,7 @@
 #ifndef CLIENT_MAP_H
 #define CLIENT_MAP_H
 
-#include "client_info.h"
+#include "../model/client_info.h"
 
 class ClientMap {
     public:

@@ -1,6 +1,8 @@
-#include "server_socket.h"
+#include "socket/server_socket.h"
+#include "accept/server_accept.h"
+#include "thread_pool/thread_pool.h"
+
 #include <iostream>
-#include <vector>
 #include <unistd.h>
 
 int main() {
@@ -10,11 +12,15 @@ int main() {
         ServerSocket server(PORT);
         server.start();
 
-        std::vector<int> clients;
+        ThreadPool pool(4);
+        AcceptThread acceptThread(server.getSocketFd(), pool);
 
+        acceptThread.start();
+        
+        std::cout << "[SERVER] Running...\n";
+        
         while(true){
-            int clientFd = server.acceptClient();
-            clients.push_back(clientFd);
+            sleep(1);
         }
     } catch (const std::exception& e){
         std::cerr << "[SERVER ERROR] " << e.what() << std::endl;

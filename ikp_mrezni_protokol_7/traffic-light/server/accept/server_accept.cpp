@@ -1,5 +1,5 @@
 #include "server_accept.h"
-// #include "thread_pool.h"
+#include "../thread_pool/thread_pool.h"
 
 #include <sys/socket.h>
 #include <unistd.h>
@@ -16,6 +16,10 @@ void AcceptThread::start() {
 }
 
 void AcceptThread::stop() {
+    // obratiti paznju kasnije ako je nit blokirana, join ce cekati zauvijek
+
+    // treba zatvoriti server socket? 
+    // ili koristiti shutdown?
     running = false;
 
     if (acceptThread.joinable())

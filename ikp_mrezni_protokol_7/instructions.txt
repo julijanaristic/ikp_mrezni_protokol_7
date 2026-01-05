@@ -24,8 +24,8 @@ After this, go back to step 2!
 ~How to start the server?
 Type in the terminal
 1. Move to the folder 'server' -> cd server
-2. g++ server.cpp server_socket.cpp -o server
-3. ./server
+2. g++ server.cpp accept/server_accept.cpp container/client_map.cpp socket/server_socket.cpp thread_pool/thread_pool.cpp -o server_app -pthread
+3. ./server_app
 
 If you see:
 [SERVER] Listening on port 8080
