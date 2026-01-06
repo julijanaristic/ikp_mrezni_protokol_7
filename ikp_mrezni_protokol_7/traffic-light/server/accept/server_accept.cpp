@@ -3,6 +3,7 @@
 
 #include <sys/socket.h>
 #include <unistd.h>
+#include <cstring>
 
 AcceptThread::AcceptThread(int serverSocket, ThreadPool& pool): serverSocket(serverSocket), threadPool(pool), running(false) {}
 
@@ -21,6 +22,9 @@ void AcceptThread::stop() {
     // treba zatvoriti server socket? 
     // ili koristiti shutdown?
     running = false;
+
+    shutdown(serverSocket, SHUT_RDWR);
+    close(serverSocket);
 
     if (acceptThread.joinable())
         acceptThread.join();
@@ -50,4 +54,16 @@ void AcceptThread::removeClient(int socketFd) {
     std::lock_guard<std::mutex> lock(clientsMutex);
     clients.remove(socketFd);
     close(socketFd);
+}
+
+void shutdownClient(ClientInfo& info){
+    const char* msg = "SHUTDOWN\n";
+    send(info.socketFd, msg, strlen(msg), 0);
+    close(info.socketFd);
+    info.active = false;
+}
+
+void AcceptThread::shutdownAllClients(){
+    std::lock_guard<std::mutex> lock(clientsMutex);
+    clients.forEach(shutdownClient);
 }

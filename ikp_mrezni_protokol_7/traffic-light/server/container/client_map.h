@@ -12,6 +12,7 @@ class ClientMap {
         void remove(int key);
         ClientInfo* find(int key);
         bool exists(int key);
+        void forEach(void (*func)(ClientInfo&));
 
     private:
         struct Node {

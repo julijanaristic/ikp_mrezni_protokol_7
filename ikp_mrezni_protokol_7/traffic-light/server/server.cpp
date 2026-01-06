@@ -19,9 +19,15 @@ int main() {
         
         std::cout << "[SERVER] Running...\n";
         
-        while(true){
-            sleep(1);
-        }
+        //simulacija rada
+        sleep(20);
+
+        std::cout << "[SERVER] Shutting down...\n";
+
+        acceptThread.shutdownAllClients(); //shutdown klijentima
+        acceptThread.stop(); //stop accept niti
+        pool.shutdownAll(); //stop worker niti
+        
     } catch (const std::exception& e){
         std::cerr << "[SERVER ERROR] " << e.what() << std::endl;
         return 1;

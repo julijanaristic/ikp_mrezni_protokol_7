@@ -17,7 +17,8 @@ class AcceptThread {
         void stop();
 
         void removeClient(int socketFd);
-
+        void shutdownAllClients();
+        
     private:
         void acceptLoop();
 

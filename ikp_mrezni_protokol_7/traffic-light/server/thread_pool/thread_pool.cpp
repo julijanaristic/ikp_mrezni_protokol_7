@@ -60,7 +60,7 @@ void ThreadPool::workerLoop() {
         delete task;
 
         //slanje komande
-        const char* command = "COMMAND GREEN\n";
+        const char* command = "COMMAND GREEN\n"; //trenutno samo za simulaciju
         send(clientFd, command, strlen(command), 0);
 
         //citanje odgovora
@@ -94,4 +94,23 @@ void ThreadPool::workerLoop() {
         const char* ack = "ACK\n";
         send(clientFd, ack, strlen(ack), 0);
     }
+}
+
+void ThreadPool::shutdownAll(){
+    // running = false;
+
+    // cv.notify_all(); //probuditi sve niti
+
+    {
+        std::lock_guard<std::mutex> lock(queueMutex);
+        running = false;
+
+        while (head) {
+            ClientTask* tmp = head;
+            head = head->next;
+            delete tmp;
+        }
+        tail = nullptr;
+    }
+    cv.notify_all();
 }

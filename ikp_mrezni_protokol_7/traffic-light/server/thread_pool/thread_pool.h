@@ -12,6 +12,7 @@ class ThreadPool {
         ~ThreadPool();
 
         void addClient(int socketFd);
+        void shutdownAll();
     private:
         void workerLoop();
 

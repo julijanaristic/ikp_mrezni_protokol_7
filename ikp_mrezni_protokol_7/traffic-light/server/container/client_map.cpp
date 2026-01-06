@@ -59,3 +59,14 @@ ClientInfo* ClientMap::find(int key) {
 bool ClientMap::exists(int key) {
     return find(key) != nullptr;
 }
+
+//omogucava bezbednu iteraciju bez izlaganja interne strukture
+void ClientMap::forEach(void (*func)(ClientInfo&)){
+    for(int i = 0; i < TABLE_SIZE; i++){
+        Node* curr = table[i];
+        while(curr){
+            func(curr->value);
+            curr = curr->next;
+        }
+    }
+}
