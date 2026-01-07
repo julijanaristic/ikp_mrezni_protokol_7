@@ -3,15 +3,21 @@
 
 #include "../common/light_types.h"
 
+#include <chrono>
+
 class TrafficLight {
     public:
         TrafficLight();
 
         Protocol::Light getCurrent() const;
+
         void next();
+        void waitCurrent();
 
     private:
         Protocol::Light current;
+
+        std::chrono::milliseconds getDuration() const;
 };
 
 #endif

@@ -1,11 +1,36 @@
 #include "traffic_light.h"
+#include <thread>
 
 using Protocol::Light;
+using namespace std::chrono;
 
 TrafficLight::TrafficLight() : current(Light::RED) {}
 
 Light TrafficLight::getCurrent() const {
     return current;
+}
+
+milliseconds TrafficLight::getDuration() const {
+    switch (current) {
+        case Light::RED:
+            return seconds(5);
+        
+        case Light::RED_YELLOW:
+            return seconds(2);
+        
+        case Light::GREEN:
+            return seconds(5);
+        
+        case Light::YELLOW:
+            return seconds(2);
+
+        default:
+            return seconds(1);
+    }
+}
+
+void TrafficLight::waitCurrent() {
+    std::this_thread::sleep_for(getDuration());
 }
 
 void TrafficLight::next() {

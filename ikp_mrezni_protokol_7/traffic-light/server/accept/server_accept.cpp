@@ -17,10 +17,6 @@ void AcceptThread::start() {
 }
 
 void AcceptThread::stop() {
-    // obratiti paznju kasnije ako je nit blokirana, join ce cekati zauvijek
-
-    // treba zatvoriti server socket? 
-    // ili koristiti shutdown?
     running = false;
 
     shutdown(serverSocket, SHUT_RDWR);
