@@ -20,7 +20,7 @@ class CommandQueue {
         Command* tail;
 
         std::mutex mtx;
-        std:condition_variable cv;
+        std::condition_variable cv;
 };
 
 #endif

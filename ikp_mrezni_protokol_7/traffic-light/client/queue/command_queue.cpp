@@ -13,7 +13,7 @@ CommandQueue::~CommandQueue() {
 void CommandQueue::push(Protocol::Light light){
     Command* cmd = new Command{light, nullptr};
 
-    std:lock_guard<std::mutex> lock(mtx);
+    std::lock_guard<std::mutex> lock(mtx);
 
     if(!tail) {
         head = tail = cmd;
