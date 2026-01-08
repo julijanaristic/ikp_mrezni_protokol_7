@@ -57,7 +57,9 @@ void TrafficLight::next() {
     }
 }
 
-bool TrafficLight::isValidTransition(Protocol::Light requested) const {
+bool TrafficLight::isValidTransition(Protocol::Light current, Protocol::Light requested) const {
+    using Protocol::Light;
+    
     switch(current) {
         case Light::RED:
             return requested == Light::RED_YELLOW;

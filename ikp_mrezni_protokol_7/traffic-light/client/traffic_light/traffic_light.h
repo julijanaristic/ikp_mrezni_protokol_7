@@ -14,7 +14,7 @@ class TrafficLight {
         void next();
         void waitCurrent();
 
-        bool isValidTransition(Protocol::Light requested) const;
+        bool isValidTransition(Protocol::Light current, Protocol::Light requested) const;
 
     private:
         Protocol::Light current;
