@@ -56,3 +56,22 @@ void TrafficLight::next() {
             break;
     }
 }
+
+bool TrafficLight::isValidTransition(Protocol::Light requested) const {
+    switch(current) {
+        case Light::RED:
+            return requested == Light::RED_YELLOW;
+        
+        case Light::RED_YELLOW:
+            return requested == Light::GREEN;
+
+        case Light::GREEN:
+            return requested == Light::YELLOW;
+        
+        case Light::YELLOW:
+            return requested == Light::RED;
+
+        default:
+            return false;
+    }
+}
