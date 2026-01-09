@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
-#include <Stdexcept>
+#include <stdexcept>
 
 ClientSocket::ClientSocket(const std::string& serverIp, int port): serverIp(serverIp), port(port), socketFd(-1) {}
 
@@ -38,7 +38,7 @@ bool ClientSocket::sendMessage(const std::string& msg) {
 }
 
 bool ClientSocket::receiveMessage(std::string& out) {
-    char byffer[256];
+    char buffer[256];
     memset(buffer, 0, sizeof(buffer));
 
     int bytes = recv(socketFd, buffer, sizeof(buffer), 0);

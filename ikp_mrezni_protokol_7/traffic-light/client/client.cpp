@@ -1,24 +1,14 @@
-#include "socket/client_socket.h"
+#include "client_socket/client_socket.h"
 #include "traffic_light/traffic_light.h"
 #include "queue/command_queue.h"
-#include "../common/protocol.h"
+#include "../common/protocol/protocol.h"
+#include "execution_thread/execution_thread.h"
 
 #include <iostream>
 #include <thread>
 #include <atomic>
 
 std::atomic<bool> running(true);
-
-void executionLoop(TrafficLight& light, CommandQueue& queue) {
-    while (running) {
-        light.waitCurrent();
-        light.next();
-
-        Protocol::Light nextCmd;
-        if (queue.pop(nextCmd))
-            light.next();
-    }
-}
 
 int main() {
     try {
@@ -28,7 +18,9 @@ int main() {
         TrafficLight trafficLight;
         CommandQueue commandQueue;
 
-        std::trhead execThread(executionLoop, std::ref(trafficLight), std::ref(commandQueue));
+        ExecutionThread execThread(trafficLight, commandQueue);
+
+        execThread.start();
 
         while (running) {
             std::string msg;
@@ -38,9 +30,9 @@ int main() {
             if (!msg.empty() && msg.back() == '\n')
                 msg.pop_back();
 
-            MessageType type = Protocol::parseMessageType(msg);
+            Protocol::MessageType type = Protocol::parseMessageType(msg);
 
-            if (type == MessageType::COMMAND) {
+            if (type == Protocol::MessageType::COMMAND) {
                 size_t space = msg.find(' ');
                 std::string lightStr = msg.substr(space + 1);
 
@@ -54,7 +46,7 @@ int main() {
                     socket.sendMessage("ERROR Invalid transition\n");
                 }
             }
-            else if (type == MessageType::SHUTDOWN) {
+            else if (type == Protocol::MessageType::SHUTDOWN) {
                 socket.sendMessage("CLIENT_EXIT\n");
                 running = false;
             }
@@ -64,7 +56,7 @@ int main() {
         }
 
         running = false;
-        execThread.join();
+        execThread.stop();
     }
     catch (const std::exception& e) {
         std::cerr << "[CLIENT ERROR] " << e.what() << std::endl;

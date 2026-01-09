@@ -1,7 +1,7 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include "../common/light_types.h"
+#include "../../common/protocol/light_types.h"
 
 struct Command {
     Protocol::Light requested;

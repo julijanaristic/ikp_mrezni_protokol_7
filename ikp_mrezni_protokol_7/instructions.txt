@@ -39,3 +39,10 @@ Then you need to perform the following steps:
 2. sudo apt upgrade -y  (if step 1 has no errors)
 3. sudo apt install g++ -y  (if step 2 has no errors)
 4. Go back to step 2 (How to start the server? step 2: g++ server.cpp server_socket.cpp -o server)
+
+~How to start client?
+1. Move to the folder 'client' -> cd client
+2. g++ client.cpp client_socket/*.cpp traffic_light/*.cpp queue/*.cpp execution_thread/*.cpp ../common/protocol/*.cpp -pthread -o client
+
+
+g++ server.cpp accept/*.cpp socket/*.cpp thread_pool/*.cpp container/*.cpp -pthread -o server

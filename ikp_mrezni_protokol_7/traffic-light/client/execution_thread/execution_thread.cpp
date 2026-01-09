@@ -28,11 +28,12 @@ void ExecutionThread::run() {
         if (commandQueue.pop(requested)) {
             if (trafficLight.isValidTransition(trafficLight.getCurrent(), requested)) {
                 std::cout << "[CLIENT] Applying command\n";
-                trafficLight.next();
+                trafficLight.set(requested);
             }
             else {
                 std::cout << "[CLIENT] Invalid command -> ERROR\n";
                 // kasnije se salje error serveru
+                trafficLight.next();
             }
         }
         else {

@@ -7,6 +7,7 @@ using namespace std::chrono;
 TrafficLight::TrafficLight() : current(Light::RED) {}
 
 Light TrafficLight::getCurrent() const {
+    std::lock_guard<std::mutex> lock(mtx);
     return current;
 }
 
@@ -34,6 +35,7 @@ void TrafficLight::waitCurrent() {
 }
 
 void TrafficLight::next() {
+    std::lock_guard<std::mutex> lock(mtx);
     switch (current) {
         case Light::RED:
             current = Light::RED_YELLOW;
@@ -55,6 +57,11 @@ void TrafficLight::next() {
             current = Light::RED;
             break;
     }
+}
+
+void TrafficLight::set(Protocol::Light l){        
+    std::lock_guard<std::mutex> lock(mtx);
+    current = l;
 }
 
 bool TrafficLight::isValidTransition(Protocol::Light current, Protocol::Light requested) const {
