@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cstring>
+#include <string>
 
 AcceptThread::AcceptThread(int serverSocket, ThreadPool& pool): serverSocket(serverSocket), threadPool(pool), running(false) {}
 
@@ -62,4 +63,20 @@ void shutdownClient(ClientInfo& info){
 void AcceptThread::shutdownAllClients(){
     std::lock_guard<std::mutex> lock(clientsMutex);
     clients.forEach(shutdownClient);
+}
+
+namespace {
+    const char* g_msg = nullptr;
+
+    void sendToClient(ClientInfo& info) {
+        if (!info.active) return;
+        send(info.socketFd, g_msg, strlen(g_msg), 0);
+    }
+}
+
+void AcceptThread::broadcast(const std::string& msg) {
+    std::lock_guard<std::mutex> lock(clientsMutex);
+    g_msg = msg.c_str();
+    clients.forEach(sendToClient);
+    g_msg = nullptr;
 }

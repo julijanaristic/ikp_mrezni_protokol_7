@@ -59,40 +59,33 @@ void ThreadPool::workerLoop() {
         int clientFd = task->socketFd;
         delete task;
 
-        //slanje komande
-        const char* command = "COMMAND GREEN\n"; //trenutno samo za simulaciju
-        send(clientFd, command, strlen(command), 0);
-
-        //citanje odgovora
         char buffer[256];
-        memset(buffer, 0, sizeof(buffer));
+        
+        while(running){           
+            memset(buffer, 0, sizeof(buffer));
+            int bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 
-        int bytes = recv(clientFd, buffer, sizeof(buffer), 0);
-        if(bytes <= 0) {
-            std::cout << "[THREAD] Client disconnected\n";
-            close(clientFd);
-            continue;
-        }
+            if(bytes <= 0) {
+                std::cout << "[THREAD] Client disconnected\n";
+                close(clientFd);
+                break;
+            }
 
-        //obrada odgovora
-        //std::cout << "[THREAD] Received: " << buffer << std::endl;
-
-        if(strncmp(buffer, "ACK", 3) == 0){
-            std::cout << "[SERVER] OK from client\n";
+            if(strncmp(buffer, "ACK", 3) == 0){
+                std::cout << "[SERVER] OK from client\n";
+            }
+            else if(strncmp(buffer, "ERROR", 5) == 0){
+                std::cout << "[SERVER] ERROR from client: " << buffer << std::endl;
+            }
+            else if(strncmp(buffer, "CLIENT_EXIT", 11) == 0){
+                std::cout << "[SERVER] Client requested exit\n";
+                close(clientFd);
+                break;
+            }
+            else {
+                std::cout << "[SERVER] Unknown response: " << buffer << std::endl;
+            }
         }
-        else if(strncmp(buffer, "ERROR", 5) == 0){
-            std::cout << "[SERVER] ERROR from client: " << buffer << std::endl;
-        }
-        else if(strncmp(buffer, "CLIENT_EXIT", 11) == 0){
-            std::cout << "[SERVER] Client requested exit\n";
-            close(clientFd);
-        }
-        else {
-            std::cout << "[SERVER] Unknown response: " << buffer << std::endl;
-        }
-
-        const char* ack = "ACK\n";
-        send(clientFd, ack, strlen(ack), 0);
     }
 }
 

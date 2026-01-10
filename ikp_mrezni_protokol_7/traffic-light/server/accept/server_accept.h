@@ -18,6 +18,7 @@ class AcceptThread {
 
         void removeClient(int socketFd);
         void shutdownAllClients();
+        void broadcast(const std::string& msg);
         
     private:
         void acceptLoop();

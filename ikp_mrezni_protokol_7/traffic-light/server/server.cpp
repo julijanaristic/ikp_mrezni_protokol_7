@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <string>
 
 int main() {
     const int PORT = 8080;
@@ -18,10 +19,17 @@ int main() {
         acceptThread.start();
         
         std::cout << "[SERVER] Running...\n";
-        
-        //simulacija rada
-        sleep(20);
+        std::cout << "Type 'exit' to shutdown server\n";
 
+        std::string cmd;
+        while(std::getline(std::cin, cmd)){
+            if(cmd == "exit")
+                break;
+
+            std::string fullCmd = "COMMAND " + cmd + "\n";
+            acceptThread.broadcast(fullCmd);
+        }
+        
         std::cout << "[SERVER] Shutting down...\n";
 
         acceptThread.shutdownAllClients(); //shutdown klijentima

@@ -37,7 +37,7 @@ void ExecutionThread::run() {
             }
         }
         else {
-            trafficLight.next();
+            //trafficLight.next();
         }
     }
 }
