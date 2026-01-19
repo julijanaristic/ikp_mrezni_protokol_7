@@ -14,16 +14,16 @@ Light TrafficLight::getCurrent() const {
 milliseconds TrafficLight::getDuration() const {
     switch (current) {
         case Light::RED:
-            return seconds(5);
+            return seconds(50);
         
         case Light::RED_YELLOW:
-            return seconds(2);
+            return seconds(50);
         
         case Light::GREEN:
-            return seconds(5);
+            return seconds(50);
         
         case Light::YELLOW:
-            return seconds(2);
+            return seconds(50);
 
         default:
             return seconds(1);

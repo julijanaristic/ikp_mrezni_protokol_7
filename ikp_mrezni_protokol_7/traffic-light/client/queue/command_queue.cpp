@@ -46,3 +46,31 @@ bool CommandQueue::empty() {
     std::lock_guard<std::mutex> lock(mtx);
     return head == nullptr;
 }
+
+void CommandQueue::printQueue(){
+    std::lock_guard<std::mutex> lock(mtx);
+
+    std::cout << "[CLIENT][QUEUE] ";
+
+    if(!head){
+        std::cout << "(empty)";
+    } else {
+        Command* curr = head;
+        while(curr) {
+            std::cout << Protocol::lightToString(curr->requested);
+            if(curr->next)
+                std::cout << " -> ";
+            curr = curr->next;
+        }
+    }
+
+    std::cout << std::endl;
+}
+
+Protocol::Light CommandQueue::getLastOrCurrent(Protocol::Light current){
+    std::lock_guard<std::mutex> lock(mtx);
+    if(!tail){
+        return current;
+    }
+    return tail->requested;
+}

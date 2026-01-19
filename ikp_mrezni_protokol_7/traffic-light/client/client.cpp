@@ -17,15 +17,19 @@ int main() {
 
         TrafficLight trafficLight;
         CommandQueue commandQueue;
-
         ExecutionThread execThread(trafficLight, commandQueue);
 
         execThread.start();
 
         while (running) {
             std::string msg;
-            if (!socket.receiveMessage(msg))
+            
+            if (!socket.receiveMessage(msg)){
+                std::cout << "[CLIENT] Server disconnected\n";
+                running = false;
+                execThread.stop();
                 break;
+            }
         
             if (!msg.empty() && msg.back() == '\n')
                 msg.pop_back();
@@ -37,9 +41,11 @@ int main() {
                 std::string lightStr = msg.substr(space + 1);
 
                 Protocol::Light requested = Protocol::parseLight(lightStr);
+                Protocol::Light base = commandQueue.empty() ? trafficLight.getCurrent() : commandQueue.getLastOrCurrent(trafficLight.getCurrent());
 
-                if (trafficLight.isValidTransition(trafficLight.getCurrent(), requested)) {
+                if (trafficLight.isValidTransition(base, requested)) {
                     commandQueue.push(requested);
+                    commandQueue.printQueue();
                     socket.sendMessage("ACK\n");
                 }
                 else {

@@ -20,24 +20,30 @@ void ExecutionThread::stop() {
 
 void ExecutionThread::run() {
     while (running) {
-        std::cout << "[CLIENT] Light active\n";
+        std::cout << "[CLIENT] Light active: "
+                  << Protocol::lightToString(trafficLight.getCurrent())
+                  << std::endl;
+        
         trafficLight.waitCurrent();
+        
+        if(!running) break;
 
         Protocol::Light requested;
 
         if (commandQueue.pop(requested)) {
-            if (trafficLight.isValidTransition(trafficLight.getCurrent(), requested)) {
-                std::cout << "[CLIENT] Applying command\n";
-                trafficLight.set(requested);
-            }
-            else {
-                std::cout << "[CLIENT] Invalid command -> ERROR\n";
-                // kasnije se salje error serveru
-                trafficLight.next();
-            }
+            std::cout << "\n[CLIENT] POP command: "
+                      << Protocol::lightToString(requested)
+                      << std::endl;
+
+            std::cout << "[CLIENT] Queue AFTER pop: ";
+            commandQueue.printQueue();
+
+            std::cout << "[CLIENT] Applying command\n";
+            trafficLight.set(requested);
+
+        } else {
+            std::cout << "[CLIENT] No command in queue, auto next\n";
+            trafficLight.next();
         }
-        else {
-            //trafficLight.next();
-        }
-    }
+    } 
 }
