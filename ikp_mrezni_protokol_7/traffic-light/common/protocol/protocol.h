@@ -18,7 +18,6 @@ namespace Protocol {
     extern const std::string LIGHT_GREEN;
     extern const std::string LIGHT_YELLOW;
 
-    MessageType parseMessageType(const std::string& msg);
     Light parseLight(const std::string& lightStr);
 
     std::string lightToString(Light light);

@@ -17,7 +17,6 @@ class AcceptThread {
         void stop();
 
         void removeClient(int socketFd);
-        void shutdownAllClients();
         void broadcast(const std::string& msg);
         
     private:

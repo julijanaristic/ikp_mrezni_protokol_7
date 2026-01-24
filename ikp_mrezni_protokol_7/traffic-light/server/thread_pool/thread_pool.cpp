@@ -4,6 +4,9 @@
 #include <cstring>
 #include <sys/socket.h>
 
+#include "../../common/protocol/message.h"
+#include "../../common/protocol/message_codec.h"
+
 ThreadPool::ThreadPool(int numThreads): head(nullptr), tail(nullptr), running(true), threadCount(numThreads) {
     workers = new std::thread[threadCount];
     for (int i=0; i<threadCount; i++)
@@ -66,24 +69,38 @@ void ThreadPool::workerLoop() {
             int bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 
             if(bytes <= 0) {
-                std::cout << "[THREAD] Client disconnected\n";
+                std::cout << "[SERVER] Client disconnected\n";
                 close(clientFd);
                 break;
             }
 
-            if(strncmp(buffer, "ACK", 3) == 0){
-                std::cout << "[SERVER] OK from client\n";
+            std::string raw(buffer);
+
+            Protocol::Message msg;
+            try {
+                msg = Protocol::deserialize(raw);
+            } catch (const std::exception& e) {
+                std::cerr << "[SERVER] Failed to deserialize message: " << e.what() << "\n";
+                continue;             
             }
-            else if(strncmp(buffer, "ERROR", 5) == 0){
-                std::cout << "[SERVER] ERROR from client: " << buffer << std::endl;
-            }
-            else if(strncmp(buffer, "CLIENT_EXIT", 11) == 0){
-                std::cout << "[SERVER] Client requested exit\n";
-                close(clientFd);
-                break;
-            }
-            else {
-                std::cout << "[SERVER] Unknown response: " << buffer << std::endl;
+
+            switch (msg.type) {
+                case Protocol::MessageType::ACK: 
+                    std::cout << "[SERVER] ACK from client " << msg.clientId << "\n";
+                    break;
+
+                case Protocol::MessageType::ERROR:
+                    std::cout << "[SERVER] ERROR from client " << msg.clientId << ": " << msg.payload << "\n";
+                    break;
+
+                case Protocol::MessageType::CLIENT_EXIT:
+                    std::cout << "[SERVER] Client exit: " << msg.clientId << "\n";
+                    close(clientFd);
+                    return;
+                
+                default:
+                    std::cout << "[SERVER] Unknown message from client " << msg.clientId << "\n";
+                    break;
             }
         }
     }

@@ -1,6 +1,8 @@
 #include "socket/server_socket.h"
 #include "accept/server_accept.h"
 #include "thread_pool/thread_pool.h"
+#include "../common/protocol/message.h"
+#include "../common/protocol/message_codec.h"
 
 #include <iostream>
 #include <unistd.h>
@@ -26,15 +28,19 @@ int main() {
             if(cmd == "exit")
                 break;
 
-            std::string fullCmd = "COMMAND " + cmd + "\n";
-            acceptThread.broadcast(fullCmd);
+            Protocol::Message msg(-1, Protocol::MessageType::COMMAND, cmd);
+            acceptThread.broadcast(Protocol::serialize(msg));
         }
         
         std::cout << "[SERVER] Shutting down...\n";
 
-        acceptThread.shutdownAllClients(); //shutdown klijentima
-        acceptThread.stop(); //stop accept niti
-        pool.shutdownAll(); //stop worker niti
+        Protocol::Message shutdown(-1, Protocol::MessageType::SHUTDOWN, "");
+        acceptThread.broadcast(Protocol::serialize(shutdown));
+
+        sleep(1);
+
+        acceptThread.stop();
+        pool.shutdownAll();
         
     } catch (const std::exception& e){
         std::cerr << "[SERVER ERROR] " << e.what() << std::endl;

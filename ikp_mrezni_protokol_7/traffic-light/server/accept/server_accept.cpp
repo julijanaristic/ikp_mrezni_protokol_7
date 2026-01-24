@@ -53,18 +53,6 @@ void AcceptThread::removeClient(int socketFd) {
     close(socketFd);
 }
 
-void shutdownClient(ClientInfo& info){
-    const char* msg = "SHUTDOWN\n";
-    send(info.socketFd, msg, strlen(msg), 0);
-    close(info.socketFd);
-    info.active = false;
-}
-
-void AcceptThread::shutdownAllClients(){
-    std::lock_guard<std::mutex> lock(clientsMutex);
-    clients.forEach(shutdownClient);
-}
-
 namespace {
     const char* g_msg = nullptr;
 
