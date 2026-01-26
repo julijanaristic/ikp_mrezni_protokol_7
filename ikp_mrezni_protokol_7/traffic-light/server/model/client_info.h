@@ -3,6 +3,7 @@
 
 struct ClientInfo {
     int socketFd;
+    int clientId;
     bool active;
 };
 

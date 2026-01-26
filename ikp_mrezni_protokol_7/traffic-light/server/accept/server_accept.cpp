@@ -1,10 +1,16 @@
 #include "server_accept.h"
 #include "../thread_pool/thread_pool.h"
 
+#include "../../common/protocol/message.h"
+#include "../../common/protocol/message_codec.h"
+
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cstring>
 #include <string>
+#include <atomic>
+
+static std::atomic<int> g_nextClientId{1};
 
 AcceptThread::AcceptThread(int serverSocket, ThreadPool& pool): serverSocket(serverSocket), threadPool(pool), running(false) {}
 
@@ -36,21 +42,30 @@ void AcceptThread::acceptLoop() {
         
         ClientInfo info;
         info.socketFd = clientSocket;
+        info.clientId = g_nextClientId++;
         info.active = true;
 
         {
             std::lock_guard<std::mutex> lock(clientsMutex);
-            clients.insert(clientSocket, info);
+            clients.insert(info.clientId, info);
         }
+
+        Protocol::Message hello(info.clientId, Protocol::MessageType::ACK, "ASSIGNED_ID");
+
+        std::string raw = Protocol::serialize(hello);
+        send(clientSocket, raw.c_str(), raw.size(), 0);
 
         threadPool.addClient(clientSocket);
     }
 }
 
-void AcceptThread::removeClient(int socketFd) {
+void AcceptThread::removeClient(int clientId) {
     std::lock_guard<std::mutex> lock(clientsMutex);
-    clients.remove(socketFd);
-    close(socketFd);
+    ClientInfo* info = clients.find(clientId);
+    if(info){
+        close(info->socketFd);
+        clients.remove(clientId);
+    }
 }
 
 namespace {

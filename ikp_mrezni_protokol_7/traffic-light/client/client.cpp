@@ -22,6 +22,8 @@ int main() {
 
         execThread.start();
 
+        int clientId = -1;
+
         while (running) {
             std::string msg;
             
@@ -37,6 +39,15 @@ int main() {
 
             Protocol::Message msgObj = Protocol::deserialize(msg);
 
+            //handshake
+            if(msgObj.type == Protocol::MessageType::ACK && 
+                msgObj.payload == "ASSIGNED_ID"){
+
+                    clientId = msgObj.clientId;
+                    std::cout << "[CLIENT] Assigned ID = " << clientId << std::endl;
+                    continue;
+                }
+
             if (msgObj.type == Protocol::MessageType::COMMAND) {
                 try {
                     Protocol::Light requested = Protocol::parseLight(msgObj.payload);
@@ -46,7 +57,7 @@ int main() {
                         commandQueue.push(requested);
                         commandQueue.printQueue();
                         Protocol::Message ack(
-                            socket.getFd(),
+                            clientId,
                             Protocol::MessageType::ACK,
                             ""
                         );
@@ -54,7 +65,7 @@ int main() {
                     }
                     else {
                         Protocol::Message err(
-                            socket.getFd(),
+                            clientId,
                             Protocol::MessageType::ERROR,
                             "Invalid transition"
                         );
@@ -62,7 +73,7 @@ int main() {
                     }
                 } catch (...) {
                     Protocol::Message err(
-                        socket.getFd(),
+                        clientId,
                         Protocol::MessageType::ERROR,
                         "Unknown light command"
                     );
@@ -71,7 +82,7 @@ int main() {
             }
             else if (msgObj.type == Protocol::MessageType::SHUTDOWN) {
                 Protocol::Message exit(
-                    socket.getFd(),
+                    clientId,
                     Protocol::MessageType::CLIENT_EXIT,
                     ""
                 );
@@ -80,7 +91,7 @@ int main() {
             }
             else {
                 Protocol::Message err(
-                    socket.getFd(),
+                    clientId,
                     Protocol::MessageType::ERROR,
                     "Unknown command"
                 );

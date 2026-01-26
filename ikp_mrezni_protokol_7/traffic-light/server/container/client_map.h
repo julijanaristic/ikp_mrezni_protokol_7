@@ -16,7 +16,7 @@ class ClientMap {
 
     private:
         struct Node {
-            int key;
+            int key; //clientId
             ClientInfo value;
             Node* next;
         };
