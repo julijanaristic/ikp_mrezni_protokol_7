@@ -20,9 +20,9 @@ enum class ServerMode {
 int main() {
     const int PORT = 8080;
 
-    ServerMode mode = ServerMode::STRESS_TEST_1;
+    //ServerMode mode = ServerMode::STRESS_TEST_1;
     //ServerMode mode = ServerMode::NORMAL;
-    //ServerMode mode = ServerMode::STRESS_TEST_2;
+    ServerMode mode = ServerMode::STRESS_TEST_2;
 
     try {
         ServerSocket server(PORT);
@@ -66,6 +66,7 @@ int main() {
         // STRESS TEST 2
         else if (mode == ServerMode::STRESS_TEST_2) {
             std::cout << "[TEST2] Sending 1000 commands\n";
+            std::this_thread::sleep_for(std::chrono::seconds(5));
 
             std::vector<std::string> sequence = {
                 "RED_YELLOW",
@@ -81,6 +82,7 @@ int main() {
                     sequence[i % sequence.size()]
                 );
                 acceptThread.broadcast(Protocol::serialize(cmd));
+                std::this_thread::sleep_for(std::chrono::seconds(3));
             }
 
             std::cout << "[TEST2] Commands sent\n";

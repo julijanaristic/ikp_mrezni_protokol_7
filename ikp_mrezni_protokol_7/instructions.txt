@@ -43,3 +43,8 @@ Then you need to perform the following steps:
 ~How to start client?
 1. Move to the folder 'client' -> cd client
 2. g++ client.cpp client_socket/*.cpp traffic_light/*.cpp queue/*.cpp execution_thread/*.cpp ../common/protocol/*.cpp -pthread -o client
+
+~How to start the stress tests?
+1. move to the tests folder
+2. first test: g++ stress_client_1.cpp ../client/client_socket/client_socket.cpp ../common/protocol/message_codec.cpp ../common/protocol/protocol.cpp -o stress_client_1 -pthread
+3. second test: g++ stress_client_2.cpp ../client/client_socket/client_socket.cpp ../common/protocol/message_codec.cpp ../common/protocol/protocol.cpp -o stress_client_2 -pthread

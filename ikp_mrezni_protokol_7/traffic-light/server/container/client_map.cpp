@@ -61,7 +61,7 @@ bool ClientMap::exists(int key) {
 }
 
 //omogucava bezbednu iteraciju bez izlaganja interne strukture
-void ClientMap::forEach(void (*func)(ClientInfo&)){
+void ClientMap::forEach(const std::function<void(ClientInfo&)>& func){
     for(int i = 0; i < TABLE_SIZE; i++){
         Node* curr = table[i];
         while(curr){

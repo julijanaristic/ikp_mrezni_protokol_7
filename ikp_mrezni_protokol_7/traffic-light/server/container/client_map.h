@@ -2,6 +2,7 @@
 #define CLIENT_MAP_H
 
 #include "../model/client_info.h"
+#include <functional>
 
 class ClientMap {
     public:
@@ -12,7 +13,7 @@ class ClientMap {
         void remove(int key);
         ClientInfo* find(int key);
         bool exists(int key);
-        void forEach(void (*func)(ClientInfo&));
+        void forEach(const std::function<void(ClientInfo&)>& func);
 
     private:
         struct Node {

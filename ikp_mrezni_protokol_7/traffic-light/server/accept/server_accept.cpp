@@ -79,7 +79,10 @@ namespace {
 
 void AcceptThread::broadcast(const std::string& msg) {
     std::lock_guard<std::mutex> lock(clientsMutex);
-    g_msg = msg.c_str();
-    clients.forEach(sendToClient);
-    g_msg = nullptr;
+    std::string framed = msg + "\n";
+
+    clients.forEach([&](ClientInfo& info) {
+        if (!info.active) return;
+        send (info.socketFd, framed.c_str(), framed.size(), 0);
+    });
 }
