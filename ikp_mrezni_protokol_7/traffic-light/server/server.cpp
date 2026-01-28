@@ -86,7 +86,7 @@ int main() {
             }
 
             std::cout << "[TEST2] Commands sent\n";
-            std::this_thread::sleep_for(std::chrono::minutes(3));
+            std::this_thread::sleep_for(std::chrono::seconds(3));
         }
 
         // SHUTDOWN
