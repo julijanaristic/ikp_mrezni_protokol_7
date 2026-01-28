@@ -28,6 +28,9 @@ class ThreadPool {
         // niti
         std::thread* workers;
         int threadCount;
+
+        //za uredan ispis na terminalu 
+        static std::mutex logMutex;
 };
 
 #endif

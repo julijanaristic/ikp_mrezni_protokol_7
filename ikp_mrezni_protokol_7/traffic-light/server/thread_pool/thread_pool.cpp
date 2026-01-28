@@ -7,6 +7,8 @@
 #include "../../common/protocol/message.h"
 #include "../../common/protocol/message_codec.h"
 
+std::mutex ThreadPool::logMutex;
+
 ThreadPool::ThreadPool(int numThreads): head(nullptr), tail(nullptr), running(true), threadCount(numThreads) {
     workers = new std::thread[threadCount];
     for (int i=0; i<threadCount; i++)
@@ -62,45 +64,60 @@ void ThreadPool::workerLoop() {
         int clientFd = task->socketFd;
         delete task;
 
+        std::string recvBuffer;
         char buffer[256];
-        
-        while(running){           
+
+        while (running) {
             memset(buffer, 0, sizeof(buffer));
             int bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 
-            if(bytes <= 0) {
+            if (bytes <= 0) {
+                std::lock_guard<std::mutex> lock(logMutex);
                 std::cout << "[SERVER] Client disconnected\n";
                 close(clientFd);
                 break;
             }
 
-            std::string raw(buffer);
+            recvBuffer.append(buffer, bytes);
 
-            Protocol::Message msg;
-            try {
-                msg = Protocol::deserialize(raw);
-            } catch (const std::exception& e) {
-                std::cerr << "[SERVER] Failed to deserialize message: " << e.what() << "\n";
-                continue;             
-            }
+            size_t pos;
+            while ((pos = recvBuffer.find('\n')) != std::string::npos) {
+                std::string raw = recvBuffer.substr(0, pos);
+                recvBuffer.erase(0, pos + 1);
 
-            switch (msg.type) {
-                case Protocol::MessageType::ACK: 
-                    std::cout << "[SERVER] ACK from client " << msg.clientId << "\n";
-                    break;
+                Protocol::Message msg;
+                try {
+                    msg = Protocol::deserialize(raw);
+                } catch (const std::exception& e) {
+                    std::lock_guard<std::mutex> lock(logMutex);
+                    std::cerr << "[SERVER] Failed to deserialize message: "
+                            << e.what() << "\n";
+                    continue;
+                }
 
-                case Protocol::MessageType::ERROR:
-                    std::cout << "[SERVER] ERROR from client " << msg.clientId << ": " << msg.payload << "\n";
-                    break;
-
-                case Protocol::MessageType::CLIENT_EXIT:
-                    std::cout << "[SERVER] Client exit: " << msg.clientId << "\n";
-                    close(clientFd);
-                    return;
-                
-                default:
-                    std::cout << "[SERVER] Unknown message from client " << msg.clientId << "\n";
-                    break;
+                switch (msg.type) {
+                    case Protocol::MessageType::ACK: {
+                        std::lock_guard<std::mutex> lock(logMutex);
+                        std::cout << "[SERVER] ACK from client " << msg.clientId << "\n";
+                        break;
+                    }
+                    case Protocol::MessageType::ERROR: {
+                        std::lock_guard<std::mutex> lock(logMutex);
+                        std::cout << "[SERVER] ERROR from client "
+                                << msg.clientId << ": "
+                                << msg.payload << "\n";
+                        break;
+                    }
+                    case Protocol::MessageType::CLIENT_EXIT: {
+                        std::lock_guard<std::mutex> lock(logMutex);
+                        std::cout << "[SERVER] Client exit: "
+                                << msg.clientId << "\n";
+                        close(clientFd);
+                        return;
+                    }
+                    default:
+                        break;
+                }
             }
         }
     }
