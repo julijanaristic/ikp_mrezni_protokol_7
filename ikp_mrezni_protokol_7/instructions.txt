@@ -48,3 +48,8 @@ Then you need to perform the following steps:
 1. move to the tests folder
 2. first test: g++ stress_client_1.cpp ../client/client_socket/client_socket.cpp ../common/protocol/message_codec.cpp ../common/protocol/protocol.cpp -o stress_client_1 -pthread
 3. second test: g++ stress_client_2.cpp ../client/client_socket/client_socket.cpp ../common/protocol/message_codec.cpp ../common/protocol/protocol.cpp -o stress_client_2 -pthread
+
+./server_app           # NORMAL
+./server_app normal    # NORMAL
+./server_app stress1   # STRESS TEST 1
+./server_app stress2   # STRESS TEST 2

@@ -17,12 +17,28 @@ enum class ServerMode {
     STRESS_TEST_2
 };
 
-int main() {
+ServerMode parseMode(int argc, char* argv[]){
+    //ovo kada je ./server_app
+    if(argc < 2)
+        return ServerMode::NORMAL;
+
+    std::string arg = argv[1]; //uzima drugu rec, tj. sto je posle ./server_app
+
+    // ./server_app stress1
+    if(arg == "stress1")
+        return ServerMode::STRESS_TEST_1;
+
+    if(arg == "stress2")
+        return ServerMode::STRESS_TEST_2;
+
+    // ./server_app normal
+    return ServerMode::NORMAL;
+}
+
+int main(int argc, char* argv[]) {
     const int PORT = 8080;
 
-    //ServerMode mode = ServerMode::STRESS_TEST_1;
-    //ServerMode mode = ServerMode::NORMAL;
-    ServerMode mode = ServerMode::STRESS_TEST_2;
+    ServerMode mode = parseMode(argc, argv);
 
     try {
         ServerSocket server(PORT);
